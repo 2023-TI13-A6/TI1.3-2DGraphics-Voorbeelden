@@ -1,5 +1,7 @@
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.dynamics.DetectResult;
@@ -11,7 +13,6 @@ import org.dyn4j.geometry.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
@@ -29,18 +30,27 @@ public class MousePicker  {
 	private MotorJoint joint;
 
 	public MousePicker(Node node) {
+		EventHandler<? super MouseEvent> oldMouseClicked = node.getOnMouseClicked();
+		EventHandler<? super MouseEvent> oldMouseReleased = node.getOnMouseReleased();
+		EventHandler<? super MouseEvent> oldMouseDragged = node.getOnMouseDragged();
 
 		node.setOnMouseClicked(e -> {
+			if(oldMouseClicked != null)
+				oldMouseClicked.handle(e);
 			if (e.getButton() == MouseButton.PRIMARY) {
 				this.mousePos = new Point2D.Double(e.getX(), e.getY());
 			}
 		});
 
 		node.setOnMouseReleased(e -> {
+			if(oldMouseReleased != null)
+				oldMouseReleased.handle(e);
 			this.mousePos = null;
 		});
 
 		node.setOnMouseDragged(e -> {
+			if(oldMouseDragged != null)
+				oldMouseDragged.handle(e);
 			this.mousePos = new Point2D.Double(e.getX(), e.getY());
 		});
 
