@@ -33,13 +33,12 @@ public class HelloBasketball extends Application implements Resizable {
 	private MousePicker mousePicker;
 	private ResizableCanvas canvas;
 	private boolean debugSelected = true;
-
-
 	private ArrayList<GameObject> gameObjects = new ArrayList<GameObject>();
 
 	public void init() {
 		world = new World();
-		world.setGravity(new Vector2(0,-9.8));
+		//world.setGravity(new Vector2(0,-9.8));
+		world.setGravity(new Vector2(0,-9.8/4));
 
 		Body floor = new Body();
 		floor.addFixture(Geometry.createRectangle(20, 1));

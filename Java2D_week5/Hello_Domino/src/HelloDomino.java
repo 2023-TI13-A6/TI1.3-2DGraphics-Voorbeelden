@@ -82,7 +82,7 @@ public class HelloDomino extends Application implements Resizable {
 		ball.addFixture(Geometry.createCircle(1));
 		ball.getTransform().setTranslation(new Vector2(0,2));
 		ball.setMass(MassType.NORMAL);
-		ball.getFixture(0).setRestitution(.25);
+		ball.getFixture(0).setRestitution(.250);
 		ball.applyImpulse(-20);
 		world.addBody(ball);
 
@@ -95,8 +95,8 @@ public class HelloDomino extends Application implements Resizable {
 
 	public void draw(FXGraphics2D g2d) {
 		g2d.setTransform(new AffineTransform());
-		g2d.setColor(Color.white);
 		g2d.clearRect(0,0, 1920, 1080);
+		g2d.setColor(Color.white);
 
 		g2d.setTransform(camera.getTransform((int)canvas.getWidth(), (int)canvas.getHeight()));
 		g2d.scale(1,-1);

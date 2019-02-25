@@ -10,5 +10,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Java2D_week5" />
     <orderEntry type="library" name="dyn4j-3.2.3" level="project" />
+    <orderEntry type="library" name="dyn4j-v3.3.0" level="project" />
+    <orderEntry type="library" name="fxgraphics2d-1.9" level="project" />
   </component>
 </module>
