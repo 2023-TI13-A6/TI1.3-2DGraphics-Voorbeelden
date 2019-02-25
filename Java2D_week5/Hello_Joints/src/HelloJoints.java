@@ -1,9 +1,17 @@
+import javafx.animation.AnimationTimer;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.dynamics.World;
 import org.dyn4j.dynamics.joint.RevoluteJoint;
 import org.dyn4j.geometry.*;
 import org.dyn4j.geometry.Rectangle;
+import org.jfree.fx.FXGraphics2D;
+import org.jfree.fx.Resizable;
+import org.jfree.fx.ResizableCanvas;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,23 +22,45 @@ import java.awt.geom.AffineTransform;
 /**
  * Created by johan on 2017-03-08.
  */
-public class HelloJoints extends JPanel implements ActionListener {
-	public static void main(String[] args)
-	{
-		JFrame frame = new JFrame("Hello Physics");
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-		frame.setContentPane(new HelloJoints());
-		frame.setVisible(true);
+public class HelloJoints extends Application implements Resizable {
+
+	private Camera camera;
+	private World world;
+	private MousePicker mousePicker;
+	private ResizableCanvas canvas;
+
+	@Override
+	public void start(Stage stage) throws Exception {
+		BorderPane borderPane = new BorderPane();
+
+		canvas = new ResizableCanvas(e -> draw(e), borderPane);
+		FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
+
+		borderPane.setCenter(canvas);
+
+		camera = new Camera(canvas, this, g2d);
+		mousePicker = new MousePicker(canvas);
+
+		stage.setScene(new Scene(borderPane,1920, 1080));
+		stage.setTitle("Hello Joints");
+		stage.show();
+
+		new AnimationTimer() {
+			long last = -1;
+			@Override
+			public void handle(long now) {
+				if(last == -1)
+					last = now;
+				update((now - last) / 1.0e9);
+				last = now;
+				draw(g2d);
+			}
+		}.start();
+
 	}
 
-	Camera camera;
-	World world;
-	MousePicker mousePicker;
-	long lastTime;
 
-	HelloJoints()
-	{
+	public void init() {
 		world = new World();
 		world.setGravity(new Vector2(0,-9.8));
 
@@ -39,9 +69,6 @@ public class HelloJoints extends JPanel implements ActionListener {
 		floor.getTransform().setTranslation(0, -3.5);
 		floor.setMass(MassType.INFINITE);
 		world.addBody(floor);
-
-
-
 
 
 		// the ragdoll
@@ -281,42 +308,27 @@ public class HelloJoints extends JPanel implements ActionListener {
 		leftFemurToLeftTibia.setMaximumMotorTorque(0.0);
 		leftFemurToLeftTibia.setCollisionAllowed(false);
 		world.addJoint(leftFemurToLeftTibia);
-
-
-
-
-
-
-
-		lastTime = System.nanoTime();
-		new Timer(15,this).start();
-		camera = new Camera(this);
-		mousePicker = new MousePicker(this);
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		long time = System.nanoTime();
-		double elapsedTime = (time-lastTime) / 1000000000.0;
-		lastTime = time;
 
-		mousePicker.update(world, camera.getTransform(getWidth(), getHeight()), 100);
-
-		world.update(elapsedTime);
-
-		repaint();
+	public void update(double deltaTime) {
+		mousePicker.update(world, camera.getTransform((int)canvas.getWidth(), (int)canvas.getHeight()), 100);
+		world.update(deltaTime);
 	}
 
-	public void paintComponent(Graphics g)
-	{
-		super.paintComponent(g);
-		Graphics2D g2d = (Graphics2D) g;
+	public void draw(FXGraphics2D g2d) {
+		g2d.setTransform(new AffineTransform());
+		g2d.setColor(Color.white);
+		g2d.clearRect(0,0, 1920, 1080);
 
-		g2d.setTransform(camera.getTransform(getWidth(), getHeight()));
+		g2d.setTransform(camera.getTransform((int)canvas.getWidth(), (int)canvas.getHeight()));
 		g2d.scale(1,-1);
 
 		DebugDraw.draw(g2d, world, 100);
 	}
 
 
+	public static void main(String[] args) {
+		Application.launch(HelloJoints.class);
+	}
 }

@@ -1,6 +1,7 @@
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Convex;
 import org.dyn4j.geometry.Vector2;
+import org.jfree.fx.FXGraphics2D;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -11,15 +12,14 @@ import java.io.IOException;
 /**
  * Created by johan on 2017-03-08.
  */
-public class GameObject
-{
-	Body body;
-	BufferedImage image;
-	Vector2 offset;
-	double scale;
+public class GameObject  {
 
-	GameObject(String imageFile, Body body, Vector2 offset, double scale)
-	{
+	private Body body;
+	private BufferedImage image;
+	private Vector2 offset;
+	private double scale;
+
+	public GameObject(String imageFile, Body body, Vector2 offset, double scale) {
 		this.body = body;
 		this.offset = offset;
 		this.scale = scale;
@@ -31,8 +31,7 @@ public class GameObject
 	}
 
 
-	public void draw(Graphics2D g2d)
-	{
+	public void draw(FXGraphics2D g2d) {
 		if(image == null)
 			return;
 

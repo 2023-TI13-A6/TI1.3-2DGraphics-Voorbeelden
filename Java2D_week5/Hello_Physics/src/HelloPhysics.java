@@ -1,32 +1,32 @@
+import javafx.animation.AnimationTimer;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.dynamics.World;
 import org.dyn4j.geometry.*;
 import org.dyn4j.geometry.Rectangle;
+import org.jfree.fx.FXGraphics2D;
+import org.jfree.fx.Resizable;
+import org.jfree.fx.ResizableCanvas;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
 
 /**
  * Created by johan on 2017-03-08.
  */
-public class HelloPhysics extends JPanel implements ActionListener {
-	public static void main(String[] args)
-	{
-		JFrame frame = new JFrame("Hello Physics");
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-		frame.setContentPane(new HelloPhysics());
-		frame.setVisible(true);
-	}
+public class HelloPhysics extends Application implements Resizable {
 
-	World world;
-	long lastTime;
+	private World world;
+	private ResizableCanvas canvas;
 
-	HelloPhysics()
-	{
+	public void init() {
 		world = new World();
 		world.setGravity(new Vector2(0,-9.8));
 
@@ -35,7 +35,6 @@ public class HelloPhysics extends JPanel implements ActionListener {
 		floor.setMass(MassType.INFINITE);
 		floor.getTransform().setRotation(Math.toRadians(10.0));
 		world.addBody(floor);
-
 
 		Body ball = new Body();
 
@@ -47,30 +46,53 @@ public class HelloPhysics extends JPanel implements ActionListener {
 //		ball.getFixture(0).setRestitution(.25);
 		world.addBody(ball);
 
-		lastTime = System.nanoTime();
-		new Timer(15,this).start();
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		long time = System.nanoTime();
-		double elapsedTime = (time-lastTime) / 1000000000.0;
-		lastTime = time;
-		world.update(elapsedTime);
+	public void start(Stage stage) throws Exception {
+		BorderPane borderPane = new BorderPane();
 
-		repaint();
+		canvas = new ResizableCanvas(e -> draw(e), borderPane);
+		FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
+
+		borderPane.setCenter(canvas);
+
+		stage.setScene(new Scene(borderPane,1920, 1080));
+		stage.setTitle("Hello Physics");
+		stage.show();
+
+		new AnimationTimer() {
+			long last = -1;
+			@Override
+			public void handle(long now) {
+				if(last == -1)
+					last = now;
+				update((now - last) / 1.0e9);
+				last = now;
+				draw(g2d);
+			}
+		}.start();
+
 	}
 
-	public void paintComponent(Graphics g)
-	{
-		super.paintComponent(g);
-		Graphics2D g2d = (Graphics2D) g;
 
+	public void update(double deltaTime) {
+		world.update(deltaTime);
+	}
 
-		g2d.translate(getWidth()/2, getHeight()/2);
+	public void draw(FXGraphics2D g2d) {
+		g2d.setTransform(new AffineTransform());
+		g2d.setColor(Color.white);
+		g2d.clearRect(0,0, 1920, 1080);
+
+		g2d.translate(canvas.getWidth()/2, canvas.getHeight()/2);
 		g2d.scale(1,-1);
 
 		DebugDraw.draw(g2d, world, 50);
+	}
+
+	public static void main(String[] args) {
+		Application.launch(HelloPhysics.class);
 	}
 
 

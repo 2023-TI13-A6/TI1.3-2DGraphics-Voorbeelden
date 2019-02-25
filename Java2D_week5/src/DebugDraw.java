@@ -5,6 +5,7 @@ import org.dyn4j.geometry.Circle;
 import org.dyn4j.geometry.Convex;
 import org.dyn4j.geometry.Polygon;
 import org.dyn4j.geometry.Vector2;
+import org.jfree.fx.FXGraphics2D;
 
 import java.awt.Graphics2D;
 import java.awt.Shape;
@@ -16,9 +17,9 @@ import java.awt.geom.GeneralPath;
  * Created by johan on 2017-03-08.
  */
 public class DebugDraw {
-	public static void draw(Graphics2D g2d, World world, double scale) {
-		for(Body b : world.getBodies())
-		{
+
+	public static void draw(FXGraphics2D g2d, World world, double scale) {
+		for(Body b : world.getBodies())  {
 			AffineTransform originalTransform = g2d.getTransform();
 
 			AffineTransform bodyTransform = new AffineTransform();
@@ -26,10 +27,8 @@ public class DebugDraw {
 			bodyTransform.rotate(b.getTransform().getRotation());
 			g2d.transform(bodyTransform);
 
-
 			for(Fixture f : b.getFixtures())
 				g2d.draw(AffineTransform.getScaleInstance(scale,scale).createTransformedShape(getShape(f.getShape(), scale)));
-
 
 			g2d.setTransform(originalTransform);
 		}
@@ -58,9 +57,9 @@ public class DebugDraw {
 
 	private static Shape getShape(Circle shape, double scale) {
 		return new Ellipse2D.Double(shape.getCenter().x - shape.getRadius(),
-																shape.getCenter().y - shape.getRadius(),
-																shape.getRadius()*2,
-																shape.getRadius()*2);
+									shape.getCenter().y - shape.getRadius(),
+									shape.getRadius()*2,
+									shape.getRadius()*2);
 	}
 
 
